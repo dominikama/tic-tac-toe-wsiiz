@@ -5,6 +5,7 @@ import edu.wsiiz.project.tictactoe.database.service.DatabaseService;
 import edu.wsiiz.project.tictactoe.game.GameBoard;
 import edu.wsiiz.project.tictactoe.game.Player;
 import edu.wsiiz.project.tictactoe.game.ResultCalculator;
+import edu.wsiiz.project.tictactoe.game.actions.GameActionName;
 import edu.wsiiz.project.tictactoe.game.actions.GameStrategy;
 import edu.wsiiz.project.tictactoe.game.move.MoveStrategiesFactory;
 import edu.wsiiz.project.tictactoe.game.move.MoveStrategy;
@@ -13,14 +14,14 @@ import edu.wsiiz.project.tictactoe.menu.ChooseLevel;
 import edu.wsiiz.project.tictactoe.util.*;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.Scanner;
+
+import static edu.wsiiz.project.tictactoe.util.Constants.*;
+
 
 @Component
 public class PlayGame implements GameStrategy {
 
-    private static final Scanner SCANNER = new Scanner(System.in);
     private final DatabaseService databaseService;
     private final MoveStrategiesFactory moveStrategiesFactory;
 
@@ -33,6 +34,12 @@ public class PlayGame implements GameStrategy {
     public void execute() {
         startGame(level(), chooseSign());
     }
+
+    @Override
+    public GameActionName getActionName() {
+        return GameActionName.PLAY;
+    }
+
     private  void startGame(Level level, Sign sign) {
         GameBoard board = new GameBoard();
         Player userPlayer = new Player(board, sign, moveStrategiesFactory.findStrategy(MoveStrategyName.USER));
@@ -42,12 +49,11 @@ public class PlayGame implements GameStrategy {
     }
 
     private MoveStrategy selectStrategy(Level level) {
-        switch (level) {
-            case EASY -> {return moveStrategiesFactory.findStrategy(MoveStrategyName.COMP_EASY);}
-            case MEDIUM -> {return moveStrategiesFactory.findStrategy(MoveStrategyName.COMP_MEDIUM);}
-            case HARD -> {return moveStrategiesFactory.findStrategy(MoveStrategyName.COMP_HARD);}
-            default -> throw new IllegalArgumentException("Level is wrong");
-        }
+        return switch (level) {
+            case EASY -> moveStrategiesFactory.findStrategy(MoveStrategyName.COMP_EASY);
+            case MEDIUM ->moveStrategiesFactory.findStrategy(MoveStrategyName.COMP_MEDIUM);
+            case HARD -> moveStrategiesFactory.findStrategy(MoveStrategyName.COMP_HARD);
+        };
     }
 
 
@@ -103,7 +109,7 @@ public class PlayGame implements GameStrategy {
     }
 
     private void saveResult(GameResult gameResult) {
-        String username = getValidUsername();
+        String username = InputUtility.getValidUsername();
         Optional.ofNullable(databaseService.findResultByUsername(username))
                 .ifPresentOrElse(resultModel -> updateExistingUsernameResult(resultModel, gameResult),
                         () -> createNewGameRecord(username, gameResult));
@@ -124,19 +130,12 @@ public class PlayGame implements GameStrategy {
         };
     }
     private static Level level() {
-        String level = getValidInput("""
-                Choose level:
-                1 - Easy
-                2 - Medium
-                3 - Hard""", Constants.LEVEL_OPTIONS);
+        String level = InputUtility.getValidInput(LEVEL_PROMPT, LEVEL_OPTIONS);
         return ChooseLevel.processLevel(level);
     }
 
     private static Sign chooseSign() {
-        String sign = getValidInput("""
-                Choose sign:
-                X - you play first
-                O - computer plays first""", Constants.SIGN_OPTIONS);
+        String sign = InputUtility.getValidInput(SIGN_PROMPT, SIGN_OPTIONS);
         return processSignInput(sign);
     }
 
@@ -144,34 +143,8 @@ public class PlayGame implements GameStrategy {
         return switch (sign.toUpperCase()) {
             case "X" -> Sign.X;
             case "O" -> Sign.O;
-            default -> throw new IllegalArgumentException("Level needs to be one of: EASY, HARD, MEDIUM");
         };
     }
 
-    private static String getValidUsername() {
-        String input;
-        do {
-            System.out.println("Enter username:  ");
-            input = SCANNER.nextLine();
-        } while (input == null || input.isEmpty());
-        return input;
-    }
-
-    private static String getValidInput(String prompt, List<String> validValues) {
-        String input;
-        do {
-            System.out.println(prompt);
-            input = SCANNER.nextLine();
-        } while (!isValidInput(validValues, input));
-        return input;
-    }
-
-    private static boolean isValidInput(List<String> validValues, String input) {
-        if (input != null && !input.isEmpty() && validValues.contains(input)) {
-            return true;
-        }
-        System.out.println("You entered invalid input, you should type one of: " + String.join(", ", validValues) + "$\" and was: " + input);
-        return false;
-    }
 
 }
