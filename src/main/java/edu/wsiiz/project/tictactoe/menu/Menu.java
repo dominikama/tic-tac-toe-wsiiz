@@ -1,58 +1,56 @@
 package edu.wsiiz.project.tictactoe.menu;
 
-import edu.wsiiz.project.tictactoe.game.actions.GameActions;
+
+import edu.wsiiz.project.tictactoe.game.actions.strategies.CheckResults;
+import edu.wsiiz.project.tictactoe.game.actions.strategies.EndGame;
+import edu.wsiiz.project.tictactoe.game.actions.strategies.ExportResultToFile;
+import edu.wsiiz.project.tictactoe.game.actions.strategies.PlayGame;
 import edu.wsiiz.project.tictactoe.util.Constants;
-import edu.wsiiz.project.tictactoe.util.Level;
-import edu.wsiiz.project.tictactoe.util.Sign;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Scanner;
 
+
+@Component
 public class Menu {
     private static final Scanner SCANNER = new Scanner(System.in);
 
-    public static void displayMenu() {
-        String choice = getValidInput("""
-                Choose action:
-                1. Play Game
-                2. Exit""", Constants.ACTION_OPTIONS);
-        processAction(choice);
+    @Autowired
+    private PlayGame playGame;
+    @Autowired
+    private CheckResults checkResults;
+
+    @Autowired
+    private ExportResultToFile exportResultToFile;
+
+    @Autowired
+    private EndGame endGame;
+
+    public void displayMenu() {
+        do {
+            String choice = getValidInput("""
+                    Choose action:
+                    1. Play Game
+                    2. Check result
+                    3. Export result to file
+                    4. Exit""", Constants.ACTION_OPTIONS);
+            processAction(choice);
+        } while (true);
     }
 
-    private static void processAction(String choice) {
-        if ("1".equals(choice)) {
-            GameActions.play(level(), chooseSign());
-        } else if ("2".equals(choice)) {
-            GameActions.endGame();
-        } else {
-            throw new IllegalArgumentException("Invalid data");
+    //todo add here the strategies for each action
+    private void processAction(String choice) {
+        switch (choice) {
+            case "1" -> playGame.execute();
+            case "2" -> checkResults.execute();
+            case "3" -> exportResultToFile.execute();
+            case "4" -> endGame.execute();
+
         }
     }
 
-    private static Level level() {
-        String level = getValidInput("""
-                Choose level:
-                1 - Easy
-                2 - Medium
-                3 - Hard""", Constants.LEVEL_OPTIONS);
-        return ChooseLevel.processLevel(level);
-    }
-
-    private static Sign chooseSign() {
-        String sign = getValidInput("""
-                Choose sign:
-                X - you play first
-                O - computer plays first""", Constants.SIGN_OPTIONS);
-        return processSignInput(sign);
-    }
-
-    private static Sign processSignInput(String sign) {
-        return switch (sign.toUpperCase()) {
-            case "X" -> Sign.X;
-            case "O" -> Sign.O;
-            default -> throw new IllegalArgumentException("Level needs to be one of: EASY, HARD, MEDIUM");
-        };
-    }
 
     private static String getValidInput(String prompt, List<String> validValues) {
         String input;

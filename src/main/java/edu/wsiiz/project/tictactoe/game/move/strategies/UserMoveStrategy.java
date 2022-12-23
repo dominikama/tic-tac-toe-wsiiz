@@ -5,11 +5,14 @@ import edu.wsiiz.project.tictactoe.game.move.MoveStrategy;
 import edu.wsiiz.project.tictactoe.util.Sign;
 import edu.wsiiz.project.tictactoe.util.SignOperator;
 
+import java.util.Scanner;
+
 public class UserMoveStrategy implements MoveStrategy {
+    private static final Scanner SCANNER = new Scanner(System.in);
     private int row;
     private int column;
-    private GameBoard gameBoard;
-    private Sign playerSign;
+    private final GameBoard gameBoard;
+    private final Sign playerSign;
 
     public UserMoveStrategy(GameBoard gameBoard, Sign playerSign) {
         this.gameBoard = gameBoard;
@@ -47,7 +50,7 @@ public class UserMoveStrategy implements MoveStrategy {
         String coordinate;
         do {
             System.out.println("Enter the " + name + ":");
-            coordinate  = System.console().readLine();
+            coordinate  = SCANNER.nextLine();
         } while (!isValid(coordinate));
 
         return Integer.parseInt(coordinate);
