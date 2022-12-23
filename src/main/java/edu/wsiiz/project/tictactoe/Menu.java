@@ -1,4 +1,4 @@
-package edu.wsiiz.project.tictactoe.menu;
+package edu.wsiiz.project.tictactoe;
 
 
 import edu.wsiiz.project.tictactoe.game.actions.GameActionsFactory;

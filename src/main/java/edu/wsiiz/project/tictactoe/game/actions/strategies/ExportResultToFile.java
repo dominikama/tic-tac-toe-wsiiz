@@ -5,7 +5,6 @@ import edu.wsiiz.project.tictactoe.database.service.DatabaseService;
 import edu.wsiiz.project.tictactoe.game.actions.GameActionName;
 import edu.wsiiz.project.tictactoe.game.actions.GameStrategy;
 import edu.wsiiz.project.tictactoe.util.InputUtility;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import static edu.wsiiz.project.tictactoe.util.Constants.DATABASE_OPTIONS;
@@ -13,12 +12,14 @@ import static edu.wsiiz.project.tictactoe.util.Constants.FILE_PROMPT;
 
 @Component
 public class ExportResultToFile implements GameStrategy {
-    @Autowired
-    private CsvExportService exportService;
+    private final CsvExportService exportService;
+    private final DatabaseService databaseService;
 
-    @Autowired
-    private DatabaseService databaseService;
 
+    public ExportResultToFile(CsvExportService exportService, DatabaseService databaseService) {
+        this.exportService = exportService;
+        this.databaseService = databaseService;
+    }
 
     @Override
     public void execute() {

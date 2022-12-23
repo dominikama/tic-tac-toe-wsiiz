@@ -4,7 +4,6 @@ import edu.wsiiz.project.tictactoe.database.service.DatabaseService;
 import edu.wsiiz.project.tictactoe.game.actions.GameActionName;
 import edu.wsiiz.project.tictactoe.game.actions.GameStrategy;
 import edu.wsiiz.project.tictactoe.util.InputUtility;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import static edu.wsiiz.project.tictactoe.util.Constants.DATABASE_OPTIONS;
@@ -13,8 +12,11 @@ import static edu.wsiiz.project.tictactoe.util.Constants.DB_PROMPT;
 @Component
 public class CheckResults implements GameStrategy {
 
-    @Autowired
-    private DatabaseService databaseService;
+    private final DatabaseService databaseService;
+
+    public CheckResults(DatabaseService databaseService) {
+        this.databaseService = databaseService;
+    }
 
     @Override
     public void execute() {

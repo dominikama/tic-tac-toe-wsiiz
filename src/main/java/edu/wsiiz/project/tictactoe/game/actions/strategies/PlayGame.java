@@ -10,7 +10,6 @@ import edu.wsiiz.project.tictactoe.game.actions.GameStrategy;
 import edu.wsiiz.project.tictactoe.game.move.MoveStrategiesFactory;
 import edu.wsiiz.project.tictactoe.game.move.MoveStrategy;
 import edu.wsiiz.project.tictactoe.game.move.MoveStrategyName;
-import edu.wsiiz.project.tictactoe.menu.ChooseLevel;
 import edu.wsiiz.project.tictactoe.util.*;
 import org.springframework.stereotype.Component;
 
@@ -48,6 +47,36 @@ public class PlayGame implements GameStrategy {
         play(userPlayer, computerPlayer);
     }
 
+    private static Level level() {
+        String level = InputUtility.getValidInput(LEVEL_PROMPT, LEVEL_OPTIONS);
+        return processLevel(level);
+    }
+
+    private static Sign chooseSign() {
+        String sign = InputUtility.getValidInput(SIGN_PROMPT, SIGN_OPTIONS);
+        return processSignInput(sign);
+    }
+
+    private static Level processLevel(String userData) {
+        if (userData != null && !userData.isEmpty()) {
+            return switch (userData) {
+                case "1" -> Level.EASY;
+                case "2" -> Level.MEDIUM;
+                case "3" -> Level.HARD;
+                default -> throw new IllegalArgumentException("Level needs to be one of: EASY, HARD, MEDIUM");
+            };
+        }
+        throw new IllegalArgumentException("User data needs to be present");
+    }
+
+    private static Sign processSignInput(String sign) {
+        return switch (sign.toUpperCase()) {
+            case "X" -> Sign.X;
+            case "O" -> Sign.O;
+            default -> throw new IllegalArgumentException("Invalid sign");
+        };
+    }
+
     private MoveStrategy selectStrategy(Level level) {
         return switch (level) {
             case EASY -> moveStrategiesFactory.findStrategy(MoveStrategyName.COMP_EASY);
@@ -67,45 +96,35 @@ public class PlayGame implements GameStrategy {
 
 
     private void playGame(Player firstPlayer, Player secondPlayer) {
-        while (!checkWin(firstPlayer, secondPlayer)) {
+        while (!evaluateWin(secondPlayer) && !checkTie(secondPlayer.getGameBoard().getBoard())) {
             firstPlayer.makeMove();
-            if (checkTie(secondPlayer.getGameBoard().getBoard())) {
-                saveResult(GameResult.DRAW);
-                System.out.println("It's a tie!");
+            if (checkTie(firstPlayer.getGameBoard().getBoard()) || evaluateWin(firstPlayer)) {
                 break;
             }
             secondPlayer.makeMove();
-            if (checkTie(secondPlayer.getGameBoard().getBoard())) {
-                saveResult(GameResult.DRAW);
-                System.out.println("It's a tie!");
-                break;
-            }
         }
     }
 
-    private boolean checkWin(Player firstPlayer, Player secondPlayer) {
-        int winFirstPlayer = SignOperator.getIntSign(firstPlayer.getSign()) * 3;
-        if (ResultCalculator.calculateAll(firstPlayer.getGameBoard().getBoard(), winFirstPlayer)) {
-           System.out.println(firstPlayer.getSign() + " wins!");
-           saveResult(checkUserResult(firstPlayer.getMoveStrategy(), secondPlayer.getMoveStrategy(), true));
-           return true;
-        }
-        int winSecondPlayer = SignOperator.getIntSign(secondPlayer.getSign()) * 3;
-        if (ResultCalculator.calculateAll(secondPlayer.getGameBoard().getBoard(), winSecondPlayer)) {
-            System.out.println(secondPlayer.getSign() + " wins!");
-            saveResult(checkUserResult(firstPlayer.getMoveStrategy(), secondPlayer.getMoveStrategy(), false));
+    private boolean checkTie(char[][] board) {
+        if (ResultCalculator.calculateTie(board)) {
+            System.out.println("It's a tie!");
+            saveResult(GameResult.DRAW);
             return true;
         }
         return false;
     }
 
-    private boolean checkTie(char[][] board) {
-        return ResultCalculator.calculateTie(board);
+    private boolean evaluateWin(Player player) {
+        int winAmount = SignOperator.getIntSign(player.getSign()) * 3;
+        if (ResultCalculator.calculateAll(player.getGameBoard().getBoard(), winAmount)) {
+            System.out.println(player.getSign() + " wins!");
+            saveResult(checkUserResult(player));
+            return true;
+        }
+        return false;
     }
-
-    private GameResult checkUserResult(MoveStrategy firstPlayer, MoveStrategy secondPlayer, boolean firstWon) {
-        return firstWon? MoveStrategyName.USER == firstPlayer.getMoveStrategyName()? GameResult.WIN : GameResult.LOOSE :
-                MoveStrategyName.USER == secondPlayer.getMoveStrategyName()? GameResult.WIN : GameResult.LOOSE;
+    private GameResult checkUserResult(Player player) {
+        return MoveStrategyName.USER == player.getMoveStrategy().getMoveStrategyName()? GameResult.WIN : GameResult.LOOSE;
     }
 
     private void saveResult(GameResult gameResult) {
@@ -119,7 +138,7 @@ public class PlayGame implements GameStrategy {
         updateExistingUsernameResult(resultModel, gameResult);
     }
     private void updateExistingUsernameResult(ResultModel resultModel, GameResult gameResult) {
-        resultModel.setScore(resultModel.getScore() + getScoreToAddByResult(gameResult));
+        databaseService.updateResultScore(resultModel.getUsername(), getScoreToAddByResult(gameResult));
     }
 
     private static int getScoreToAddByResult(GameResult gameResult) {
@@ -129,22 +148,4 @@ public class PlayGame implements GameStrategy {
             case DRAW -> 0;
         };
     }
-    private static Level level() {
-        String level = InputUtility.getValidInput(LEVEL_PROMPT, LEVEL_OPTIONS);
-        return ChooseLevel.processLevel(level);
-    }
-
-    private static Sign chooseSign() {
-        String sign = InputUtility.getValidInput(SIGN_PROMPT, SIGN_OPTIONS);
-        return processSignInput(sign);
-    }
-
-    private static Sign processSignInput(String sign) {
-        return switch (sign.toUpperCase()) {
-            case "X" -> Sign.X;
-            case "O" -> Sign.O;
-        };
-    }
-
-
 }
