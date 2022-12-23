@@ -30,7 +30,7 @@ public class DatabaseService {
     }
 
     public List<ResultModel> get10BestResults() {
-        return resultRepository.findFirst10ByOrderByScore();
+        return resultRepository.findTop10ByOrderByScoreDesc();
     }
 
     public List<ResultModel> getAllResults() {

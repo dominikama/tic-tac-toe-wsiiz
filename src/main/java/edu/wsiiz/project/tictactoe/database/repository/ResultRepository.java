@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface ResultRepository extends JpaRepository<ResultModel, Long> {
-    List<ResultModel> findFirst10ByOrderByScore();
+    List<ResultModel> findTop10ByOrderByScoreDesc();
     ResultModel findByUsername(String username);
 }

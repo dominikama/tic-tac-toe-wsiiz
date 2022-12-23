@@ -14,7 +14,7 @@ public class ResultModel {
     private Long id;
     @Column(name = "username", unique = true, nullable = false)
     private String username;
-    @Column(name = "createdDate")
+    @Column(name = "created")
     private String createdDate;
     @Column(name = "score")
     private Integer score;
