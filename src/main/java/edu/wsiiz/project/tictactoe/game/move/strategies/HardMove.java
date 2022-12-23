@@ -1,25 +1,24 @@
 package edu.wsiiz.project.tictactoe.game.move.strategies;
 
 import edu.wsiiz.project.tictactoe.game.GameBoard;
+import edu.wsiiz.project.tictactoe.game.Player;
 import edu.wsiiz.project.tictactoe.game.ResultCalculator;
 import edu.wsiiz.project.tictactoe.game.move.MoveStrategy;
+import edu.wsiiz.project.tictactoe.game.move.MoveStrategyName;
 import edu.wsiiz.project.tictactoe.util.Sign;
 import edu.wsiiz.project.tictactoe.util.SignOperator;
+import org.springframework.stereotype.Component;
 
 import static edu.wsiiz.project.tictactoe.game.ResultCalculator.calculateAll;
 
+@Component
 public class HardMove implements MoveStrategy {
     private GameBoard board;
     private Sign sign;
     private Sign opponentSign;
 
-    public HardMove(GameBoard board, Sign sign) {
-        this.sign = sign;
-        this.opponentSign = SignOperator.getOpponentSign(sign);
-        this.board = board;
-    }
-
-    public void makeMove() {
+    public void makeMove(Player player) {
+        setUpData(player);
         int bestScore = Integer.MIN_VALUE;
         int[] bestCoordinates = {-1, -1};
         for (int i = 0; i < 3; i++) {
@@ -39,15 +38,16 @@ public class HardMove implements MoveStrategy {
         board.displayBoard();
     }
 
-
-    public GameBoard getBoard() {
-        return this.board;
+    @Override
+    public MoveStrategyName getMoveStrategyName() {
+        return MoveStrategyName.COMP_HARD;
     }
 
-    public Sign getSign() {
-        return this.sign;
+    private void setUpData(Player player) {
+        this.sign = player.getSign();
+        this.opponentSign = SignOperator.getOpponentSign(sign);
+        this.board = player.getGameBoard();
     }
-
     private int minimax(char[][] array, int depth, boolean isMax) {
         int score = evaluate(array);
         if (score == 10 || score == -10 || (score == 0 && ResultCalculator.calculateTie(array))) {

@@ -1,36 +1,30 @@
 package edu.wsiiz.project.tictactoe.game.move.strategies;
 
 import edu.wsiiz.project.tictactoe.game.GameBoard;
+import edu.wsiiz.project.tictactoe.game.Player;
 import edu.wsiiz.project.tictactoe.game.move.MoveStrategy;
-import edu.wsiiz.project.tictactoe.util.Sign;
+import edu.wsiiz.project.tictactoe.game.move.MoveStrategyName;
 import edu.wsiiz.project.tictactoe.util.SignOperator;
+import org.springframework.stereotype.Component;
 
 import java.util.Random;
 
+@Component
 public class EasyMoveStrategy implements MoveStrategy {
     private int row;
     private int column;
     private GameBoard gameBoard;
-    private Random random = new Random();
-    private Sign playerSign;
+    private final Random random = new Random();
 
-    public EasyMoveStrategy(GameBoard gameBoard, Sign playerSign) {
-        this.gameBoard = gameBoard;
-        this.playerSign = playerSign;
-    }
-
-    public void makeMove() {
+    public void makeMove(Player player) {
+        this.gameBoard = player.getGameBoard();
         enterMoveData();
-        gameBoard.modifyElement(this.row, this.column, SignOperator.getCharSign(playerSign));
+        gameBoard.modifyElement(this.row, this.column, SignOperator.getCharSign(player.getSign()));
         gameBoard.displayBoard();
     }
-
-    public GameBoard getBoard() {
-        return this.gameBoard;
-    }
-
-    public Sign getSign() {
-        return this.playerSign;
+    @Override
+    public MoveStrategyName getMoveStrategyName() {
+        return MoveStrategyName.COMP_EASY;
     }
 
     private void enterMoveData() {

@@ -3,14 +3,14 @@ package edu.wsiiz.project.tictactoe.game.actions.strategies;
 import edu.wsiiz.project.tictactoe.database.model.ResultModel;
 import edu.wsiiz.project.tictactoe.database.service.DatabaseService;
 import edu.wsiiz.project.tictactoe.game.GameBoard;
+import edu.wsiiz.project.tictactoe.game.Player;
 import edu.wsiiz.project.tictactoe.game.ResultCalculator;
 import edu.wsiiz.project.tictactoe.game.actions.GameStrategy;
+import edu.wsiiz.project.tictactoe.game.move.MoveStrategiesFactory;
 import edu.wsiiz.project.tictactoe.game.move.MoveStrategy;
-import edu.wsiiz.project.tictactoe.game.move.strategies.EasyMoveStrategy;
-import edu.wsiiz.project.tictactoe.game.move.strategies.UserMoveStrategy;
+import edu.wsiiz.project.tictactoe.game.move.MoveStrategyName;
 import edu.wsiiz.project.tictactoe.menu.ChooseLevel;
 import edu.wsiiz.project.tictactoe.util.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -21,9 +21,13 @@ import java.util.Scanner;
 public class PlayGame implements GameStrategy {
 
     private static final Scanner SCANNER = new Scanner(System.in);
+    private final DatabaseService databaseService;
+    private final MoveStrategiesFactory moveStrategiesFactory;
 
-    @Autowired
-    private  DatabaseService databaseService;
+    public PlayGame(DatabaseService databaseService, MoveStrategiesFactory moveStrategiesFactory) {
+        this.databaseService = databaseService;
+        this.moveStrategiesFactory = moveStrategiesFactory;
+    }
 
     @Override
     public void execute() {
@@ -31,34 +35,41 @@ public class PlayGame implements GameStrategy {
     }
     private  void startGame(Level level, Sign sign) {
         GameBoard board = new GameBoard();
+        Player userPlayer = new Player(board, sign, moveStrategiesFactory.findStrategy(MoveStrategyName.USER));
+        Player computerPlayer = new Player(board, SignOperator.getOpponentSign(sign), selectStrategy(level));
         board.displayBoard();
-        MoveStrategy userPlayer = new UserMoveStrategy(board, sign);
-        //todo add creation for the strategies
-        MoveStrategy computerPlayer = //selectStrategy(level, SignOperator.getOpponentSign(sign) , board);
-                new EasyMoveStrategy(board, SignOperator.getOpponentSign(sign));
-        play(userPlayer, computerPlayer, sign);
+        play(userPlayer, computerPlayer);
     }
 
-
-    private void play(MoveStrategy userPlayer, MoveStrategy computerPlayer, Sign sign) {
-        if (sign == Sign.X) {
-            play(userPlayer, computerPlayer);
-        } else {
-            play(computerPlayer, userPlayer);
+    private MoveStrategy selectStrategy(Level level) {
+        switch (level) {
+            case EASY -> {return moveStrategiesFactory.findStrategy(MoveStrategyName.COMP_EASY);}
+            case MEDIUM -> {return moveStrategiesFactory.findStrategy(MoveStrategyName.COMP_MEDIUM);}
+            case HARD -> {return moveStrategiesFactory.findStrategy(MoveStrategyName.COMP_HARD);}
+            default -> throw new IllegalArgumentException("Level is wrong");
         }
     }
 
 
-    private void play(MoveStrategy firstPlayer, MoveStrategy secondPlayer) {
+    private void play(Player userPlayer, Player computerPlayer) {
+        if (userPlayer.getSign() == Sign.X) {
+            playGame(userPlayer, computerPlayer);
+        } else {
+            playGame(computerPlayer, userPlayer);
+        }
+    }
+
+
+    private void playGame(Player firstPlayer, Player secondPlayer) {
         while (!checkWin(firstPlayer, secondPlayer)) {
             firstPlayer.makeMove();
-            if (checkTie(secondPlayer.getBoard().getBoard())) {
+            if (checkTie(secondPlayer.getGameBoard().getBoard())) {
                 saveResult(GameResult.DRAW);
                 System.out.println("It's a tie!");
                 break;
             }
             secondPlayer.makeMove();
-            if (checkTie(secondPlayer.getBoard().getBoard())) {
+            if (checkTie(secondPlayer.getGameBoard().getBoard())) {
                 saveResult(GameResult.DRAW);
                 System.out.println("It's a tie!");
                 break;
@@ -66,17 +77,17 @@ public class PlayGame implements GameStrategy {
         }
     }
 
-    private boolean checkWin(MoveStrategy firstPlayer, MoveStrategy secondPlayer) {
+    private boolean checkWin(Player firstPlayer, Player secondPlayer) {
         int winFirstPlayer = SignOperator.getIntSign(firstPlayer.getSign()) * 3;
-        if (ResultCalculator.calculateAll(firstPlayer.getBoard().getBoard(), winFirstPlayer)) {
+        if (ResultCalculator.calculateAll(firstPlayer.getGameBoard().getBoard(), winFirstPlayer)) {
            System.out.println(firstPlayer.getSign() + " wins!");
-           saveResult(checkUserResult(firstPlayer, secondPlayer, true));
+           saveResult(checkUserResult(firstPlayer.getMoveStrategy(), secondPlayer.getMoveStrategy(), true));
            return true;
         }
         int winSecondPlayer = SignOperator.getIntSign(secondPlayer.getSign()) * 3;
-        if (ResultCalculator.calculateAll(secondPlayer.getBoard().getBoard(), winSecondPlayer)) {
+        if (ResultCalculator.calculateAll(secondPlayer.getGameBoard().getBoard(), winSecondPlayer)) {
             System.out.println(secondPlayer.getSign() + " wins!");
-            saveResult(checkUserResult(firstPlayer, secondPlayer, false));
+            saveResult(checkUserResult(firstPlayer.getMoveStrategy(), secondPlayer.getMoveStrategy(), false));
             return true;
         }
         return false;
@@ -87,8 +98,8 @@ public class PlayGame implements GameStrategy {
     }
 
     private GameResult checkUserResult(MoveStrategy firstPlayer, MoveStrategy secondPlayer, boolean firstWon) {
-        return firstWon? firstPlayer instanceof UserMoveStrategy? GameResult.WIN : GameResult.LOOSE :
-                secondPlayer instanceof UserMoveStrategy? GameResult.WIN : GameResult.LOOSE;
+        return firstWon? MoveStrategyName.USER == firstPlayer.getMoveStrategyName()? GameResult.WIN : GameResult.LOOSE :
+                MoveStrategyName.USER == secondPlayer.getMoveStrategyName()? GameResult.WIN : GameResult.LOOSE;
     }
 
     private void saveResult(GameResult gameResult) {

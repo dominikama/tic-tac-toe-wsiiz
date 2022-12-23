@@ -1,46 +1,40 @@
 package edu.wsiiz.project.tictactoe.game.move.strategies;
 
 import edu.wsiiz.project.tictactoe.game.GameBoard;
+import edu.wsiiz.project.tictactoe.game.Player;
 import edu.wsiiz.project.tictactoe.game.ResultCalculator;
 import edu.wsiiz.project.tictactoe.game.move.MoveStrategy;
+import edu.wsiiz.project.tictactoe.game.move.MoveStrategyName;
 import edu.wsiiz.project.tictactoe.util.Sign;
 import edu.wsiiz.project.tictactoe.util.SignOperator;
+import org.springframework.stereotype.Component;
 
 import java.util.Random;
 
 import static edu.wsiiz.project.tictactoe.game.ResultCalculator.getNumberOfColumn;
 import static edu.wsiiz.project.tictactoe.game.ResultCalculator.getNumberOfRow;
-
+@Component
 public class MediumMoveStrategy implements MoveStrategy {
 
     private int _row;
     private int _column;
-    private final GameBoard board;
-    private final Sign sign;
+    private GameBoard board;
     private final Random random = new Random();
-    private boolean moveMade = false;
 
-    public MediumMoveStrategy(GameBoard board, Sign sign) {
-        this.board = board;
-        this.sign = sign;
-    }
-
-    public void makeMove() {
+    public void makeMove(Player player) {
+        this.board = player.getGameBoard();
         enterData();
-        board.modifyElement(this._row, this._column, SignOperator.getCharSign(sign));
+        board.modifyElement(this._row, this._column, SignOperator.getCharSign(player.getSign()));
         board.displayBoard();
     }
 
-    public GameBoard getBoard() {
-        return this.board;
-    }
-
-    public Sign getSign() {
-        return this.sign;
+    @Override
+    public MoveStrategyName getMoveStrategyName() {
+        return MoveStrategyName.COMP_MEDIUM;
     }
 
     private void enterData() {
-        moveMade = checkColumns() || (checkRows() || (checkFirstDiagnoal() || checkSecondDiagnoal()));
+        boolean moveMade = checkColumns() || (checkRows() || (checkFirstDiagnoal() || checkSecondDiagnoal()));
         if (!moveMade) {
             generateRandomMove();
         }
