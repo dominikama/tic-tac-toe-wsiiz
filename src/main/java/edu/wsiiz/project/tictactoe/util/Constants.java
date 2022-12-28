@@ -6,7 +6,7 @@ public class Constants {
     public static final List<String> LEVEL_OPTIONS = List.of("1", "2", "3");
     public static final List<String> DATABASE_OPTIONS = List.of("1", "2");
     public static final List<String> SIGN_OPTIONS = List.of("X", "O", "x", "o");
-    public static final List<String> ACTION_OPTIONS = List.of("1", "2", "3", "4");
+    public static final List<String> ACTION_OPTIONS = List.of("1", "2", "3", "4", "5");
     public static final List<String> FILE_STRATEGY_OPTIONS = List.of("1", "2", "3");
 
     public static final String LEVEL_PROMPT = """
@@ -19,7 +19,8 @@ public class Constants {
                     1. Play Game
                     2. Check result
                     3. Export result to file
-                    4. Exit""";
+                    4. Delete result by username
+                    5. Exit""";
     public static final String SIGN_PROMPT="""
                 Choose sign:
                 X - you play first
