@@ -28,7 +28,7 @@ public class InputUtility {
         return input;
     }
 
-    private  boolean isValidInput(List<String> validValues, String input) {
+    private boolean isValidInput(List<String> validValues, String input) {
         if (input != null && !input.isEmpty() && validValues.contains(input)) {
             return true;
         }
