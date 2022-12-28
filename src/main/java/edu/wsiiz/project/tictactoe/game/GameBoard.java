@@ -11,10 +11,6 @@ public class GameBoard {
         return board;
     }
 
-    public void setBoard(char[][] board) {
-        this.board = board;
-    }
-
     public GameBoard() {
         createEmptyBoard();
     }
