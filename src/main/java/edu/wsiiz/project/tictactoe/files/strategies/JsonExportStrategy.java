@@ -6,16 +6,16 @@ import edu.wsiiz.project.tictactoe.files.FileExport;
 import edu.wsiiz.project.tictactoe.files.FileExportStrategyName;
 import org.springframework.stereotype.Component;
 
-import java.io.*;
-
-import java.text.SimpleDateFormat;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.util.Date;
 import java.util.List;
 
 @Component
 public class JsonExportStrategy implements FileExport {
-    private ObjectMapper objectMapper;
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss") ;
+    private final ObjectMapper objectMapper;
     public JsonExportStrategy() {
         objectMapper = new ObjectMapper();
     }
@@ -27,6 +27,7 @@ public class JsonExportStrategy implements FileExport {
         File file = new File(name);
         try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(file)))) {
                objectMapper.writeValue(out, models);
+            System.out.println("Exported to file: " + name);
         }  catch (Exception e) {
             System.out.println("Error While writing JSON " + e);
         }
