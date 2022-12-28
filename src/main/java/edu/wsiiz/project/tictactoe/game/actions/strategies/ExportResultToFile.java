@@ -1,6 +1,6 @@
 package edu.wsiiz.project.tictactoe.game.actions.strategies;
 
-import edu.wsiiz.project.tictactoe.csv.CsvExportService;
+import edu.wsiiz.project.tictactoe.files.CsvExportService;
 import edu.wsiiz.project.tictactoe.database.service.DatabaseService;
 import edu.wsiiz.project.tictactoe.game.actions.GameActionName;
 import edu.wsiiz.project.tictactoe.game.actions.GameStrategy;

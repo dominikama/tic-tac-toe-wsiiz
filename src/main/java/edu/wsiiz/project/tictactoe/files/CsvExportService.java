@@ -1,4 +1,4 @@
-package edu.wsiiz.project.tictactoe.csv;
+package edu.wsiiz.project.tictactoe.files;
 
 import edu.wsiiz.project.tictactoe.database.model.ResultModel;
 import org.apache.commons.csv.CSVFormat;
