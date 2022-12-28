@@ -17,21 +17,30 @@ import java.util.Optional;
 
 import static edu.wsiiz.project.tictactoe.util.Constants.*;
 
-
+//todo - refactor this since it is not testable
 @Component
 public class PlayGame implements GameStrategy {
 
     private final DatabaseService databaseService;
     private final MoveStrategiesFactory moveStrategiesFactory;
 
-    public PlayGame(DatabaseService databaseService, MoveStrategiesFactory moveStrategiesFactory) {
+    private final InputUtility inputUtility;
+
+    public PlayGame(DatabaseService databaseService, MoveStrategiesFactory moveStrategiesFactory,
+                    InputUtility inputUtility) {
         this.databaseService = databaseService;
         this.moveStrategiesFactory = moveStrategiesFactory;
+        this.inputUtility = inputUtility;
     }
 
     @Override
     public void execute() {
-        startGame(level(), chooseSign());
+        GameBoard board = new GameBoard();
+        Sign sign = chooseSign();
+        Player userPlayer = new Player(board, sign, moveStrategiesFactory.findStrategy(MoveStrategyName.USER));
+        Player computerPlayer = new Player(board, SignOperator.getOpponentSign(sign), selectStrategy(level()));
+        board.displayBoard();
+        play(userPlayer, computerPlayer);
     }
 
     @Override
@@ -39,25 +48,17 @@ public class PlayGame implements GameStrategy {
         return GameActionName.PLAY;
     }
 
-    private  void startGame(Level level, Sign sign) {
-        GameBoard board = new GameBoard();
-        Player userPlayer = new Player(board, sign, moveStrategiesFactory.findStrategy(MoveStrategyName.USER));
-        Player computerPlayer = new Player(board, SignOperator.getOpponentSign(sign), selectStrategy(level));
-        board.displayBoard();
-        play(userPlayer, computerPlayer);
-    }
-
-    private static Level level() {
-        String level = InputUtility.getValidInput(LEVEL_PROMPT, LEVEL_OPTIONS);
+    private Level level() {
+        String level = inputUtility.getValidInput(LEVEL_PROMPT, LEVEL_OPTIONS);
         return processLevel(level);
     }
 
-    private static Sign chooseSign() {
-        String sign = InputUtility.getValidInput(SIGN_PROMPT, SIGN_OPTIONS);
+    private Sign chooseSign() {
+        String sign = inputUtility.getValidInput(SIGN_PROMPT, SIGN_OPTIONS);
         return processSignInput(sign);
     }
 
-    private static Level processLevel(String userData) {
+    private Level processLevel(String userData) {
         if (userData != null && !userData.isEmpty()) {
             return switch (userData) {
                 case "1" -> Level.EASY;
@@ -128,7 +129,7 @@ public class PlayGame implements GameStrategy {
     }
 
     private void saveResult(GameResult gameResult) {
-        String username = InputUtility.getValidUsername();
+        String username = inputUtility.getValidUsername();
         Optional.ofNullable(databaseService.findResultByUsername(username))
                 .ifPresentOrElse(resultModel -> updateExistingUsernameResult(resultModel, gameResult),
                         () -> createNewGameRecord(username, gameResult));
@@ -141,7 +142,7 @@ public class PlayGame implements GameStrategy {
         databaseService.updateResultScore(resultModel.getUsername(), getScoreToAddByResult(gameResult));
     }
 
-    private static int getScoreToAddByResult(GameResult gameResult) {
+    private int getScoreToAddByResult(GameResult gameResult) {
         return switch (gameResult) {
             case WIN -> 1;
             case LOOSE -> -1;

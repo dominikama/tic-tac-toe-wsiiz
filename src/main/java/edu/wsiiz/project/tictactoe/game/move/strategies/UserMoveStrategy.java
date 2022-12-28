@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.Scanner;
 
 @Component
+//todo  modify to use input utility and add tests
 public class UserMoveStrategy implements MoveStrategy {
     private static final Scanner SCANNER = new Scanner(System.in);
     private int row;

@@ -1,13 +1,16 @@
 package edu.wsiiz.project.tictactoe.util;
 
+import org.springframework.stereotype.Component;
+
 import java.util.List;
 import java.util.Scanner;
 
+@Component
 public class InputUtility {
 
-    private static final Scanner SCANNER = new Scanner(System.in);
+    private final Scanner SCANNER = new Scanner(System.in);
 
-    public static String getValidInput(String prompt, List<String> validValues) {
+    public  String getValidInput(String prompt, List<String> validValues) {
         String input;
         do {
             System.out.println(prompt);
@@ -16,7 +19,7 @@ public class InputUtility {
         return input;
     }
 
-    public static String getValidUsername() {
+    public  String getValidUsername() {
         String input;
         do {
             System.out.println("Enter username:  ");
@@ -25,7 +28,7 @@ public class InputUtility {
         return input;
     }
 
-    private static boolean isValidInput(List<String> validValues, String input) {
+    private  boolean isValidInput(List<String> validValues, String input) {
         if (input != null && !input.isEmpty() && validValues.contains(input)) {
             return true;
         }

@@ -13,14 +13,16 @@ import static edu.wsiiz.project.tictactoe.util.Constants.DB_PROMPT;
 public class CheckResults implements GameStrategy {
 
     private final DatabaseService databaseService;
+    private final InputUtility inputUtility;
 
-    public CheckResults(DatabaseService databaseService) {
+    public CheckResults(DatabaseService databaseService, InputUtility inputUtility) {
         this.databaseService = databaseService;
+        this.inputUtility = inputUtility;
     }
 
     @Override
     public void execute() {
-        String action = InputUtility.getValidInput(DB_PROMPT, DATABASE_OPTIONS);
+        String action = inputUtility.getValidInput(DB_PROMPT, DATABASE_OPTIONS);
         processRequest(action);
     }
 

@@ -2,25 +2,27 @@ package edu.wsiiz.project.tictactoe;
 
 
 import edu.wsiiz.project.tictactoe.game.actions.GameActionsFactory;
+import edu.wsiiz.project.tictactoe.util.InputUtility;
 import org.springframework.stereotype.Component;
 
 import static edu.wsiiz.project.tictactoe.game.actions.GameActionName.*;
 import static edu.wsiiz.project.tictactoe.util.Constants.ACTION_OPTIONS;
 import static edu.wsiiz.project.tictactoe.util.Constants.ACTION_PROMPT;
-import static edu.wsiiz.project.tictactoe.util.InputUtility.getValidInput;
+
 
 
 @Component
 public class Menu {
     private final GameActionsFactory gameActionsFactory;
-
-    public Menu(GameActionsFactory gameActionsFactory) {
+    private final InputUtility inputUtility;
+    public Menu(GameActionsFactory gameActionsFactory, InputUtility inputUtility) {
         this.gameActionsFactory = gameActionsFactory;
+        this.inputUtility = inputUtility;
     }
 
     public void displayMenu() {
         do {
-            String choice = getValidInput(ACTION_PROMPT, ACTION_OPTIONS);
+            String choice = inputUtility.getValidInput(ACTION_PROMPT, ACTION_OPTIONS);
             processAction(choice);
         } while (true);
     }

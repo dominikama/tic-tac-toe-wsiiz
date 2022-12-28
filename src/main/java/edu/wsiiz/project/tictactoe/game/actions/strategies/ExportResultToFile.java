@@ -15,15 +15,18 @@ public class ExportResultToFile implements GameStrategy {
     private final CsvExportService exportService;
     private final DatabaseService databaseService;
 
+    private final InputUtility inputUtility;
 
-    public ExportResultToFile(CsvExportService exportService, DatabaseService databaseService) {
+    public ExportResultToFile(CsvExportService exportService, DatabaseService databaseService,
+                              InputUtility inputUtility) {
         this.exportService = exportService;
         this.databaseService = databaseService;
+        this.inputUtility = inputUtility;
     }
 
     @Override
     public void execute() {
-        String action = InputUtility.getValidInput(FILE_PROMPT, DATABASE_OPTIONS);
+        String action = inputUtility.getValidInput(FILE_PROMPT, DATABASE_OPTIONS);
         processRequest(action);
     }
 
