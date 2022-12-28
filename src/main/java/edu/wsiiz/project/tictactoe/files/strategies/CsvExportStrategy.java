@@ -10,13 +10,11 @@ import org.springframework.stereotype.Component;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
 @Component
 public class CsvExportStrategy implements FileExport {
-    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
     @Override
     public void exportToFile(List<ResultModel> models) {
         Date date = new Date();
@@ -26,6 +24,7 @@ public class CsvExportStrategy implements FileExport {
             for (ResultModel resultModel: models) {
                 csvPrinter.printRecord(resultModel.getUsername(), resultModel.getScore(), resultModel.getCreatedDate());
             }
+            System.out.println("Exported to file: " + name);
         } catch (IOException e) {
             System.out.println("Error While writing CSV " +  e);
         }

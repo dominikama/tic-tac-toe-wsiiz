@@ -136,6 +136,7 @@ public class PlayGame implements GameStrategy {
     }
     private void createNewGameRecord(String username, GameResult gameResult) {
         ResultModel resultModel = databaseService.saveResultModel(username);
+        System.out.println("New user saved in our database!");
         updateExistingUsernameResult(resultModel, gameResult);
     }
     private void updateExistingUsernameResult(ResultModel resultModel, GameResult gameResult) {

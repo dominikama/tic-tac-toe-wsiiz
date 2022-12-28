@@ -26,11 +26,14 @@ public class DatabaseService {
     public void deleteResultModel(String username) {
         ResultModel resultModel = resultRepository.findByUsername(username);
         resultRepository.deleteById(resultModel.getId());
+        System.out.println("Deleted result: " + resultModel);
     }
 
     public ResultModel updateResultScore(String username, int amount) {
         ResultModel resultModel = findResultByUsername(username);
-        resultModel.setScore(resultModel.getScore() + amount);
+        int newScore = resultModel.getScore() + amount;
+        resultModel.setScore(newScore);
+        System.out.println("User: " + username + ", score: " + newScore);
         return resultRepository.save(resultModel);
     }
 
