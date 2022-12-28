@@ -23,6 +23,11 @@ public class DatabaseService {
         return resultRepository.save(resultConverter.createNewModel(username));
     }
 
+    public void deleteResultModel(String username) {
+        ResultModel resultModel = resultRepository.findByUsername(username);
+        resultRepository.deleteById(resultModel.getId());
+    }
+
     public ResultModel updateResultScore(String username, int amount) {
         ResultModel resultModel = findResultByUsername(username);
         resultModel.setScore(resultModel.getScore() + amount);

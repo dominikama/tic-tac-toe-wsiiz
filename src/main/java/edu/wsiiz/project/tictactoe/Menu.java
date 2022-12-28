@@ -32,7 +32,9 @@ public class Menu {
             case "1" -> gameActionsFactory.findStrategy(PLAY).execute();
             case "2" -> gameActionsFactory.findStrategy(CHECK_RESULT).execute();
             case "3" -> gameActionsFactory.findStrategy(EXPORT_FILE).execute();
-            case "4" -> gameActionsFactory.findStrategy(END).execute();
+            case "4" -> gameActionsFactory.findStrategy(DELETE_RESULT).execute();
+            case "5" -> gameActionsFactory.findStrategy(END).execute();
+
         }
     }
 
