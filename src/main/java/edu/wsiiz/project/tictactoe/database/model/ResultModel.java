@@ -10,7 +10,7 @@ import lombok.Setter;
 @Table(name = "result")
 public class ResultModel {
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long id;
     @Column(name = "username", unique = true, nullable = false)
     private String username;

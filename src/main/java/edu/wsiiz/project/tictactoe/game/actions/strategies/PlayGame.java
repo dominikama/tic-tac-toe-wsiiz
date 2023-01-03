@@ -7,6 +7,7 @@ import edu.wsiiz.project.tictactoe.game.Player;
 import edu.wsiiz.project.tictactoe.game.ResultCalculator;
 import edu.wsiiz.project.tictactoe.game.actions.GameActionName;
 import edu.wsiiz.project.tictactoe.game.actions.GameStrategy;
+import edu.wsiiz.project.tictactoe.game.actions.strategies.helpers.PlayingUtility;
 import edu.wsiiz.project.tictactoe.game.move.MoveStrategiesFactory;
 import edu.wsiiz.project.tictactoe.game.move.MoveStrategy;
 import edu.wsiiz.project.tictactoe.game.move.MoveStrategyName;
@@ -17,7 +18,6 @@ import java.util.Optional;
 
 import static edu.wsiiz.project.tictactoe.util.Constants.*;
 
-//todo - refactor this since it is not testable
 @Component
 public class PlayGame implements GameStrategy {
 
@@ -26,11 +26,14 @@ public class PlayGame implements GameStrategy {
 
     private final InputUtility inputUtility;
 
+    private final PlayingUtility playingUtility;
+
     public PlayGame(DatabaseService databaseService, MoveStrategiesFactory moveStrategiesFactory,
-                    InputUtility inputUtility) {
+                    InputUtility inputUtility, PlayingUtility playingUtility) {
         this.databaseService = databaseService;
         this.moveStrategiesFactory = moveStrategiesFactory;
         this.inputUtility = inputUtility;
+        this.playingUtility = playingUtility;
     }
 
     @Override
@@ -50,33 +53,14 @@ public class PlayGame implements GameStrategy {
 
     private Level level() {
         String level = inputUtility.getValidInput(LEVEL_PROMPT, LEVEL_OPTIONS);
-        return processLevel(level);
+        return playingUtility.processLevel(level);
     }
 
     private Sign chooseSign() {
         String sign = inputUtility.getValidInput(SIGN_PROMPT, SIGN_OPTIONS);
-        return processSignInput(sign);
+        return playingUtility.processSignInput(sign);
     }
 
-    private Level processLevel(String userData) {
-        if (userData != null && !userData.isEmpty()) {
-            return switch (userData) {
-                case "1" -> Level.EASY;
-                case "2" -> Level.MEDIUM;
-                case "3" -> Level.HARD;
-                default -> throw new IllegalArgumentException("Level needs to be one of: EASY, HARD, MEDIUM");
-            };
-        }
-        throw new IllegalArgumentException("User data needs to be present");
-    }
-
-    private static Sign processSignInput(String sign) {
-        return switch (sign.toUpperCase()) {
-            case "X" -> Sign.X;
-            case "O" -> Sign.O;
-            default -> throw new IllegalArgumentException("Invalid sign");
-        };
-    }
 
     private MoveStrategy selectStrategy(Level level) {
         return switch (level) {
@@ -85,8 +69,6 @@ public class PlayGame implements GameStrategy {
             case HARD -> moveStrategiesFactory.findStrategy(MoveStrategyName.COMP_HARD);
         };
     }
-
-
     private void play(Player userPlayer, Player computerPlayer) {
         if (userPlayer.getSign() == Sign.X) {
             playGame(userPlayer, computerPlayer);
@@ -119,13 +101,10 @@ public class PlayGame implements GameStrategy {
         int winAmount = SignOperator.getIntSign(player.getSign()) * 3;
         if (ResultCalculator.calculateAll(player.getGameBoard().getBoard(), winAmount)) {
             System.out.println(player.getSign() + " wins!");
-            saveResult(checkUserResult(player));
+            saveResult(playingUtility.checkUserResult(player));
             return true;
         }
         return false;
-    }
-    private GameResult checkUserResult(Player player) {
-        return MoveStrategyName.USER == player.getMoveStrategy().getMoveStrategyName()? GameResult.WIN : GameResult.LOOSE;
     }
 
     private void saveResult(GameResult gameResult) {
@@ -140,14 +119,7 @@ public class PlayGame implements GameStrategy {
         updateExistingUsernameResult(resultModel, gameResult);
     }
     private void updateExistingUsernameResult(ResultModel resultModel, GameResult gameResult) {
-        databaseService.updateResultScore(resultModel.getUsername(), getScoreToAddByResult(gameResult));
+        databaseService.updateResultScore(resultModel.getUsername(), playingUtility.getScoreToAddByResult(gameResult));
     }
 
-    private int getScoreToAddByResult(GameResult gameResult) {
-        return switch (gameResult) {
-            case WIN -> 1;
-            case LOOSE -> -1;
-            case DRAW -> 0;
-        };
-    }
 }
