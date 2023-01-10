@@ -108,7 +108,7 @@ public class PlayingUtilityTest {
     @Test
     public void testGetScoreToAddByResult_draw() {
         // when
-        int score = playingUtility.getScoreToAddByResult(GameResult.DRAW);
+        int score = playingUtility.getScoreToAddByResult(GameResult.TIE);
 
         // then
         assertEquals(0, score);

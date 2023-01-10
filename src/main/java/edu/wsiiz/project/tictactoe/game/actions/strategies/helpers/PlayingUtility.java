@@ -38,7 +38,7 @@ public class PlayingUtility {
         return switch (gameResult) {
             case WIN -> 1;
             case LOOSE -> -1;
-            case DRAW -> 0;
+            case TIE -> 0;
         };
     }
 

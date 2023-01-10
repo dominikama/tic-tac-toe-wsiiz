@@ -39,4 +39,6 @@ public class Constants {
                 1 - csv
                 2 - json
                 3 - xml""";
+    public static final String ADMIN_USERNAME_PROMPT="Enter admin username: ";
+    public static final String ADMIN_PASSWORD_PROMPT="Enter admin password: ";
 }

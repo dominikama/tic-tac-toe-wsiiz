@@ -91,7 +91,7 @@ public class PlayGame implements GameStrategy {
     private boolean checkTie(char[][] board) {
         if (ResultCalculator.calculateTie(board)) {
             System.out.println("It's a tie!");
-            saveResult(GameResult.DRAW);
+            saveResult(GameResult.TIE);
             return true;
         }
         return false;
@@ -109,17 +109,30 @@ public class PlayGame implements GameStrategy {
 
     private void saveResult(GameResult gameResult) {
         String username = inputUtility.getValidUsername();
+        String password = inputUtility.getValidPassword();
         Optional.ofNullable(databaseService.findResultByUsername(username))
-                .ifPresentOrElse(resultModel -> updateExistingUsernameResult(resultModel, gameResult),
-                        () -> createNewGameRecord(username, gameResult));
+                .ifPresentOrElse(resultModel -> updateExistingUsernameResult(resultModel, password, gameResult),
+                        () -> createNewGameRecord(username,password, gameResult));
     }
-    private void createNewGameRecord(String username, GameResult gameResult) {
-        ResultModel resultModel = databaseService.saveResultModel(username);
+    private void createNewGameRecord(String username, String passsword, GameResult gameResult) {
+        ResultModel resultModel = databaseService.saveResultModel(username, passsword);
         System.out.println("New user saved in our database!");
-        updateExistingUsernameResult(resultModel, gameResult);
+        updateExistingUsernameResult(resultModel, passsword, gameResult);
     }
-    private void updateExistingUsernameResult(ResultModel resultModel, GameResult gameResult) {
-        databaseService.updateResultScore(resultModel.getUsername(), playingUtility.getScoreToAddByResult(gameResult));
+    private void updateExistingUsernameResult(ResultModel resultModel, String password,  GameResult gameResult) {
+        int i = 0;
+        while (!resultModel.getPassword().equals(password) && i < 3) {
+            int triesLeft = 3 - i;
+            System.out.println("Your password is incorrect, please try again, left chances: " + triesLeft + "," +
+                    " after that your result will be lost");
+            password = inputUtility.getValidPassword();
+            i++;
+        }
+        if (resultModel.getPassword().equals(password)) {
+            databaseService.updateResultScore(resultModel.getUsername(), playingUtility.getScoreToAddByResult(gameResult));
+        } else {
+            System.out.println("Sorry you lost your score due to the wrong password");
+        }
     }
 
 }

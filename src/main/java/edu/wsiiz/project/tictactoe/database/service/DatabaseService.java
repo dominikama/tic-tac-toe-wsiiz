@@ -19,14 +19,18 @@ public class DatabaseService {
         this.resultConverter = resultConverter;
     }
 
-    public ResultModel saveResultModel(String username) {
-        return resultRepository.save(resultConverter.createNewModel(username));
+    public ResultModel saveResultModel(String username, String password) {
+        return resultRepository.save(resultConverter.createNewModel(username, password));
     }
 
     public void deleteResultModel(String username) {
         ResultModel resultModel = resultRepository.findByUsername(username);
-        resultRepository.deleteById(resultModel.getId());
-        System.out.println("Deleted result: " + resultModel);
+        if (resultModel != null) {
+            resultRepository.deleteById(resultModel.getId());
+            System.out.println("Deleted result: " + resultModel);
+        } else {
+            System.out.println("No user found with this username");
+        }
     }
 
     public ResultModel updateResultScore(String username, int amount) {
