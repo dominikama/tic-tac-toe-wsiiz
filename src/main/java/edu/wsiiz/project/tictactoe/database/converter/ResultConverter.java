@@ -10,9 +10,10 @@ import java.util.Date;
 public class ResultConverter {
 
     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss") ;
-    public ResultModel createNewModel(String username) {
+    public ResultModel createNewModel(String username, String password) {
        ResultModel resultModel = new ResultModel();
        resultModel.setUsername(username);
+       resultModel.setPassword(password);
        resultModel.setScore(0);
        resultModel.setCreatedDate(dateFormat.format(new Date()));
        return resultModel;

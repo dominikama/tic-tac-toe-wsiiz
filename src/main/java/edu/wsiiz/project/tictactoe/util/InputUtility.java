@@ -10,6 +10,10 @@ public class InputUtility {
 
     private final Scanner SCANNER = new Scanner(System.in);
 
+    public  String getInput(String prompt) {
+        System.out.println(prompt);
+        return SCANNER.nextLine();
+    }
     public  String getValidInput(String prompt, List<String> validValues) {
         String input;
         do {
@@ -23,6 +27,14 @@ public class InputUtility {
         String input;
         do {
             System.out.println("Enter username:  ");
+            input = SCANNER.nextLine();
+        } while (input == null || input.isEmpty());
+        return input;
+    }
+    public  String getValidPassword() {
+        String input;
+        do {
+            System.out.println("Enter password:  ");
             input = SCANNER.nextLine();
         } while (input == null || input.isEmpty());
         return input;
